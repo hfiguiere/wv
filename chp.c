@@ -554,9 +554,9 @@ wvMergeCHPXFromBucket (CHPX * dest, UPXF * src)
     while (i < src->cbUPX)
       {
 	  /*wvTrace(("gotcha 2 the sprm is %x\n",*((U16 *)pointer))); */
-	  test = InsertNode (&tree, (void *) pointer);
-    if(!pointer)
-      break;
+          test = InsertNode (&tree, (void *) pointer);
+          if(!pointer)
+              break;
 	  sprm = dread_16ubit (NULL, &pointer);
 	  i += 2;
 	  wvTrace (("the sprm is %x\n", sprm));
@@ -564,6 +564,11 @@ wvMergeCHPXFromBucket (CHPX * dest, UPXF * src)
 	  wvTrace (("len of op is %d\n", temp));
 	  pointer += temp;
 	  wvTrace (("p dis is %d\n", pointer - src->upx.chpx.grpprl));
+	  if (len > 255 - (temp + 2))
+	    {
+		wvError(("Overflow in wvMergeCHPXFromBucket(). Possibly corrupt file.\n"));
+		break; /* overflow. Stop here. */
+	    }
 	  if (test)
 	      len += temp + 2;
       }
@@ -589,8 +594,14 @@ wvMergeCHPXFromBucket (CHPX * dest, UPXF * src)
 	  wvTrace (("i is now %d\n", i));
 
 	  pointer = (U8 *) testn->Data;
-	  for (j = 0; j < i + 2; j++)
+	  for (j = 0; j < i + 2; j++) {
+              if (dpointer - grpprl >= len)
+                {
+                    wvError(("Buffer overflow in wvMergeCHPXFromBucket(). Possibly corrupt file.\n"));
+                    break;
+                }
 	      *dpointer++ = *pointer++;
+          }
 
 	  testp = NextNode (&tree, testn);
 	  wvDeleteNode (&tree, testn);
