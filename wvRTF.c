@@ -110,6 +110,9 @@ mapFont (const char *name)
 {
     int k;
 
+    if (!name)
+	return DFL_FONT_INDEX;
+
     for (k = 0; k < FontTblSize; k++)
 	if (!strcasecmp (fontMap[k].word, name))
 	    return k;
