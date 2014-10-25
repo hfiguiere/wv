@@ -243,7 +243,8 @@ wvSetPassword (const char *pass, wvParseStruct * ps)
        yet, and this is the only time i think i go from utf to 
        unicode */
 
-    while (*password)
+    if (password)
+      while (*password)
       {
 	  len = our_mbtowc (&(ps->password[i]), password, 5);
 	  i++;
